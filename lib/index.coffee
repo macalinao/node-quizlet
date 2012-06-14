@@ -1,7 +1,6 @@
 querystring = require 'querystring'
 
 request = require 'superagent'
-oauth = require('oauth').OAuth
 
 baseURL = 'https://api.quizlet.com/2.0/'
 
@@ -17,7 +16,16 @@ class QuizletAPI
     cb {}
 
   getUser: (username, cb) ->
+    ###
+    Gets information about the given user.
+    ###
     @get "users/#{username}", {}, cb
+
+  getUserSets: (username, cb) ->
+    ###
+    Gets information about the given user.
+    ###
+    @get "users/#{username}/sets", {}, cb
 
 exports.Public = class QuizletPublic extends QuizletAPI
 
