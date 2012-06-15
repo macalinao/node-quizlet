@@ -7,13 +7,22 @@ describe 'QuizletAPI', ->
     # All API calls are assumed to be authenticated.
     @api = new Quizlet clientId: config.clientId
 
-  describe '#getAuthURL', ->
+  describe '#getAuthUrl', ->
     it 'should create a new URL based on the client ID', ->
       parse = url.parse @api.getAuthUrl(), true
       parse.query.client_id.should.equal config.clientId
 
     it 'should space the parameters fed to scope', ->
       parse = url.parse @api.getAuthUrl(['read', 'write_set']), true
+      parse.query.scope.should.equal 'read%20write_set'
+
+    it 'should throw an error when an invalid scope parameter is given', ->
+      (=> # Finally used the fat arrow.
+        @api.getAuthUrl(['read', 'write_foo']))
+      .should.throw 'Invalid scope `write_foo` encountered!'
+
+    it 'should correct weirdly cased scope parameters', ->
+      parse = url.parse @api.getAuthUrl(['READ', 'Write_Set']), true
       parse.query.scope.should.equal 'read%20write_set'
 
   describe '#getUser', ->
