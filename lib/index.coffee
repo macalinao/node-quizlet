@@ -15,8 +15,9 @@ module.exports = class QuizletAPI
     ###
     @clientId = if params.clientId? then params.clientId else throw new Error 'Need client ID!'
     @secret = if params.secret? then params.secret else throw new Error 'Need secret!'
+    @redirectUri = if params.redirectUri? then params.redirectUri else throw new Error 'Need Redirect URI!'
 
-  getAuthUrl: (scopes = ['read'], state = 'state', redirectURI) ->
+  getAuthUrl: (scopes = ['read'], state = 'state') ->
     ###
     Gets an authorize URL to use to auth a user.
     ###
@@ -30,13 +31,11 @@ module.exports = class QuizletAPI
       response_type: 'code'
       scope: escape scopes.join ' '
       state: state
-
-    if redirectUri?
-      params.redirect_uri = redirectUri
+      redirect_uri: @redirectUri
 
     return authBaseUrl + '?' + querystring.stringify(params)
 
-  requestToken: (code, redirectUri) ->
+  requestToken: (code) ->
     ###
     Requests a token from Quizlet.
     ###
@@ -45,6 +44,7 @@ module.exports = class QuizletAPI
     params =
       grant_type: 'authorization_code'
       code: code
+      redirect_uri: @redirectUri
 
     request.post(tokenUrl)
       .type('form')
