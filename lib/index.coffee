@@ -1,6 +1,7 @@
 querystring = require 'querystring'
 request = require 'superagent'
 
+authBaseURL = 'https://quizlet.com/authorize/'
 baseURL = 'https://api.quizlet.com/2.0/'
 
 module.exports = class QuizletAPI
@@ -12,6 +13,26 @@ module.exports = class QuizletAPI
     Creates a new instance of a Quizlet API accessor.
     ###
     @clientId = if params.clientId? then params.clientId else throw new Error 'Need client ID!'
+
+  getAuthUrl: (scopes = ['read'], state = 'state', redirectURI) ->
+    ###
+    Gets an authorize URL to use to auth a user.
+    ###
+    for scope, i in scopes
+      scopes[i] = scope = scope.toLowerCase()
+      unless scope in ['read', 'write_set', 'write_group']
+        throw new Error "Invalid scope `#{scope}` encountered!"
+
+    params =
+      client_id: @clientId
+      response_type: 'code'
+      scope: escape scopes.join ' '
+      state: state
+
+    if redirectURI?
+      params.redirectURI = redirectURI
+
+    return authBaseURL + '?' + querystring.stringify(params)
 
   get: (resource, params, cb) ->
     ###
