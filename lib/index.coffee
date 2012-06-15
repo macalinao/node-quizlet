@@ -14,6 +14,7 @@ module.exports = class QuizletAPI
     Creates a new instance of a Quizlet API accessor.
     ###
     @clientId = if params.clientId? then params.clientId else throw new Error 'Need client ID!'
+    @secret = if params.secret? then params.secret else throw new Error 'Need secret!'
 
   getAuthUrl: (scopes = ['read'], state = 'state', redirectURI) ->
     ###
@@ -35,6 +36,26 @@ module.exports = class QuizletAPI
 
     return authBaseUrl + '?' + querystring.stringify(params)
 
+  requestToken: (code, redirectUri) ->
+    ###
+    Requests a token from Quizlet.
+    ###
+    basic = new Buffer(@clientId + ':' + @secret).toString 'base64'
+
+    params =
+      grant_type: 'authorization_code'
+      code: code
+
+    request.post(tokenUrl)
+      .type('form')
+      .set('Authorization', 'Basic ' + basic)
+      .send()
+      .end (res) ->
+        if res.body.error
+          cb true, res.body
+        else
+          cb null, res.body
+
   get: (resource, params, cb) ->
     ###
     Performs a general GET request against the Quizlet API.
@@ -43,7 +64,8 @@ module.exports = class QuizletAPI
     request.get(baseUrl + resource + '?' + querystring.stringify(params)).end (res) ->
       if res.body.error
         cb true, res.body
-      cb null, res.body
+      else
+        cb null, res.body
 
   getUser: (username, cb) ->
     ###

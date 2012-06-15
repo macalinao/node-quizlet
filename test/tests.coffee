@@ -5,7 +5,7 @@ url = require 'url'
 describe 'QuizletAPI', ->
   beforeEach ->
     # All API calls are assumed to be authenticated.
-    @api = new Quizlet clientId: config.clientId
+    @api = new Quizlet clientId: config.clientId, secret: config.secret
 
   describe '#getAuthUrl', ->
     it 'should create a new URL based on the client ID', ->
@@ -24,6 +24,9 @@ describe 'QuizletAPI', ->
     it 'should correct weirdly cased scope parameters', ->
       parse = url.parse @api.getAuthUrl(['READ', 'Write_Set']), true
       parse.query.scope.should.equal 'read%20write_set'
+
+  describe '#requestToken', ->
+    it 'is untestable', ->
 
   describe '#getUser', ->
     it 'should get the details of a user', (done) ->
