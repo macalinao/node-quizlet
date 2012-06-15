@@ -1,8 +1,9 @@
 querystring = require 'querystring'
 request = require 'superagent'
 
-authBaseURL = 'https://quizlet.com/authorize/'
-baseURL = 'https://api.quizlet.com/2.0/'
+authBaseUrl = 'https://quizlet.com/authorize/'
+tokenUrl = 'https://api.quizlet.com/oauth/token'
+baseUrl = 'https://api.quizlet.com/2.0/'
 
 module.exports = class QuizletAPI
   ###
@@ -29,17 +30,17 @@ module.exports = class QuizletAPI
       scope: escape scopes.join ' '
       state: state
 
-    if redirectURI?
-      params.redirectURI = redirectURI
+    if redirectUri?
+      params.redirect_uri = redirectUri
 
-    return authBaseURL + '?' + querystring.stringify(params)
+    return authBaseUrl + '?' + querystring.stringify(params)
 
   get: (resource, params, cb) ->
     ###
     Performs a general GET request against the Quizlet API.
     ###
     params.client_id = @clientId
-    request.get(baseURL + resource + '?' + querystring.stringify(params)).end (res) ->
+    request.get(baseUrl + resource + '?' + querystring.stringify(params)).end (res) ->
       if res.body.error
         cb true, res.body
       cb null, res.body
